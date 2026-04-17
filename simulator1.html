@@ -55,33 +55,33 @@
         const layer = document.getElementById('fabric-' + partId);
         const maskUrl = partId + '_front.PNG';
         
-        // 1. まず新しい画像を読み込む（ブラウザに「これから使うよ」と教える）
-        const img = new Image();
-        img.src = imgUrl;
-        const mask = new Image();
-        mask.src = maskUrl;
+        // 背景画像（生地）をセット
+        layer.style.backgroundImage = "url('" + imgUrl + "')";
+        
+        // 【ここが修正ポイント！】
+        // Chromeなどのブラウザで確実に動くように「-webkit-」をしっかりつけ、
+        // かつ最新の書き方も併記します。
+        
+        // 1. 型抜きの画像指定
+        layer.style.webkitMaskImage = "url('" + maskUrl + "')";
+        layer.style.maskImage = "url('" + maskUrl + "')";
+        
+        // 2. 繰り返しなし
+        layer.style.webkitMaskRepeat = "no-repeat";
+        layer.style.maskRepeat = "no-repeat";
+        
+        // 3. サイズ（枠に合わせる）
+        layer.style.webkitMaskSize = "contain";
+        layer.style.maskSize = "contain";
+        
+        // 4. 位置（中央）
+        layer.style.webkitMaskPosition = "center";
+        layer.style.maskPosition = "center";
 
-        // 2. 読み込みが完了してから適用する（これが大事！）
-        mask.onload = function() {
-            layer.style.backgroundImage = "url('" + imgUrl + "')";
-            
-            // つるちゃんの画像（白＝不透明）をハサミとして使う
-            layer.style.webkitMaskImage = "url('" + maskUrl + "')";
-            layer.style.maskImage = "url('" + maskUrl + "')";
-            
-            layer.style.webkitMaskRepeat = "no-repeat";
-            layer.style.maskRepeat = "no-repeat";
-            
-            layer.style.webkitMaskSize = "contain";
-            layer.style.maskSize = "contain";
-            
-            layer.style.webkitMaskPosition = "center";
-            layer.style.maskPosition = "center";
-            
-            // 強制的に表示！
-            layer.style.display = "block";
-            console.log(partId + " の色を " + imgUrl + " に書き換えたよ！");
-        };
+        // 表示をONにする
+        layer.style.display = "block";
+
+        console.log(partId + " のマスクを適用しました: " + maskUrl);
     }
 </script>
 </body>
