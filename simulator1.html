@@ -6,87 +6,59 @@
     <style>
         body { font-family: sans-serif; background-color: #fcf9f5; color: #4a4a4a; margin: 0; padding: 20px; }
         .container { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
-        
-        /* プレビューエリア：500x700のキャンバスのような場所 */
         .preview-area { position: relative; width: 500px; height: 700px; background: white; border: 2px solid #e0dcd6; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        /* 生地レイヤー（各パーツの色の土台） */
+        /* 生地レイヤー */
         .fabric-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background-size: cover; background-position: center; display: none; }
         
-        /* 枠線レイヤー（一番上に重なる線の画像） */
+        /* 枠線レイヤー（上から重ねる線） */
         .outline { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; object-fit: contain; }
         
-        /* 操作パネルのスタイル */
-        .controls { width: 450px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .controls { width: 400px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .control-group { border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 15px; }
-        h2 { margin-top: 0; color: #8a7d6a; text-align: center; }
-        h3 { color: #8a7d6a; border-left: 5px solid #8a7d6a; padding-left: 12px; font-size: 16px; margin-bottom: 10px; }
-        .label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 13px; color: #666; }
-        button { margin: 2px; padding: 8px 12px; cursor: pointer; border: 1px solid #eee; background: #fff; border-radius: 6px; font-size: 12px; transition: 0.2s; }
-        button:hover { background: #faf8f5; border-color: #dcd6cc; }
+        h3 { color: #8a7d6a; border-left: 5px solid #8a7d6a; padding-left: 12px; font-size: 16px; }
+        button { margin: 2px; padding: 8px 12px; cursor: pointer; border: 1px solid #eee; background: #fff; border-radius: 6px; font-size: 12px; }
+        button:hover { background: #faf8f5; border-color: #8a7d6a; }
     </style>
 </head>
 <body>
-
-<h2>Palette シュミレーター by Little tree</h2>
 
 <div class="container">
     <div class="preview-area">
         <div id="fabric-main" class="fabric-layer"></div>
         <div id="fabric-1" class="fabric-layer"></div>
-        <div id="fabric-2" class="fabric-layer"></div>
-        <div id="fabric-3" class="fabric-layer"></div>
-        <div id="fabric-4" class="fabric-layer"></div>
-        <div id="fabric-5" class="fabric-layer"></div>
-        <div id="fabric-6" class="fabric-layer"></div>
-
+        
         <img src="main_front.PNG" class="outline">
         <img src="1_front.PNG" class="outline">
-        <img src="2_front.PNG" class="outline">
-        <img src="3_front.PNG" class="outline">
-        <img src="4_front.PNG" class="outline">
-        <img src="5_front.PNG" class="outline">
-        <img src="6_front.PNG" class="outline">
     </div>
 
     <div class="controls">
-        <h3>生地を選んでみてください</h3>
+        <h2>Palette Simulation</h2>
         
         <div class="control-group">
-            <span class="label">メイン生地：</span>
+            <h3>メイン生地</h3>
             <button onclick="apply('main', 'main_white.JPG')">ホワイト</button>
             <button onclick="apply('main', 'main_sax.JPG')">サックス</button>
-            <button onclick="apply('main', 'main_beige.JPG')">ベージュ</button>
             <button onclick="apply('main', 'main_sage.JPG')">セージ</button>
-            <button onclick="apply('main', 'main_black.JPG')">ブラック</button>
-            <button onclick="apply('main', 'main_navy.JPG')">ネイビー</button>
-            <button onclick="apply('main', 'main_pink.JPG')">ピンク</button>
-            <button onclick="apply('main', 'main_lemon.JPG')">レモン</button>
         </div>
 
         <div class="control-group">
-            <span class="label">① 襟パーツ：</span>
+            <h3>襟パーツ（①）</h3>
             <button onclick="apply('1', 'main_white.JPG')">ホワイト</button>
             <button onclick="apply('1', 'Berry_lavender.JPG')">ラベンダー</button>
         </div>
-        
-        <p style="font-size: 11px; color: #b0a89a;">
-            ※反映されない場合はページを再読み込みしてください。
-        </p>
     </div>
 </div>
 
 <script>
     function apply(partId, imgUrl) {
         const layer = document.getElementById('fabric-' + partId);
-        
-        // 型紙（マスク）のファイル名も大文字 .PNG に指定
+        // 今回は透過PNGなので、そのファイル自体を型紙（マスク）にします
         const maskUrl = partId + '_front.PNG';
         
-        // 背景に生地をセット
         layer.style.backgroundImage = "url('" + imgUrl + "')";
         
-        // マスク（型抜き）の設定
+        // 透過PNGを使った「型抜き」の命令
         layer.style.webkitMaskImage = "url('" + maskUrl + "')";
         layer.style.webkitMaskRepeat = "no-repeat";
         layer.style.webkitMaskSize = "contain";
