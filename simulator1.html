@@ -6,16 +6,24 @@
     <style>
         body { font-family: sans-serif; background-color: #fcf9f5; color: #4a4a4a; margin: 0; padding: 20px; }
         .container { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
-        .preview-area { background: white; border: 2px solid #e0dcd6; border-radius: 10px; position: relative; width: 500px; height: 700px; overflow: hidden; }
         
-        /* 1. 生地のレイヤー：一番後ろ */
-        #fabric-main { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background-size: cover; background-position: center; display: none; }
+        /* プレビューエリア：すべての画像を重ねる場所 */
+        .preview-area { position: relative; width: 500px; height: 700px; background: white; border: 2px solid #e0dcd6; border-radius: 10px; overflow: hidden; }
         
-        /* 2. 枠線のレイヤー：一番前 */
+        /* 生地レイヤー（後ろ側）：ここに生地の画像を敷く */
+        .fabric-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background-size: cover; background-position: center; display: none; }
+        
+        /* 枠線レイヤー（前側）：生地の上に透過枠線を重ねる */
         .outline { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; object-fit: contain; }
         
+        /* 操作パネル */
         .controls { width: 450px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        button { margin: 5px; padding: 10px 15px; cursor: pointer; border: 1px solid #ddd; background: #fff; border-radius: 8px; }
+        .control-group { border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 15px; }
+        h2 { margin-top: 0; color: #8a7d6a; text-align: center; }
+        h3 { color: #8a7d6a; border-left: 5px solid #8a7d6a; padding-left: 12px; font-size: 16px; margin-bottom: 10px; }
+        .label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 13px; color: #666; }
+        button { margin: 2px; padding: 8px 12px; cursor: pointer; border: 1px solid #eee; background: #fff; border-radius: 6px; font-size: 12px; transition: 0.2s; }
+        button:hover { background: #faf8f5; border-color: #dcd6cc; }
     </style>
 </head>
 <body>
@@ -24,30 +32,60 @@
 
 <div class="container">
     <div class="preview-area">
-        <div id="fabric-main"></div>
-        <img src="main_front.PNG" class="outline">
+        <div id="fabric-main" class="fabric-layer"></div>
+        <div id="fabric-1" class="fabric-layer"></div>
+        <img src="main_front.jpg" class="outline">
+        <img src="1_front.jpg" class="outline">
+        <img src="2_front.jpg" class="outline">
+        <img src="3_front.jpg" class="outline">
+        <img src="4_front.jpg" class="outline">
+        <img src="5_front.jpg" class="outline">
+        <img src="6_front.jpg" class="outline">
     </div>
 
     <div class="controls">
         <h3>【前身頃】生地の選択</h3>
-        <button onclick="change('main_sax.JPG')">サックス</button>
-        <button onclick="change('main_white.JPG')">ホワイト</button>
-        <p>※ボタンを押すと背景の色が変わります！</p>
+        
+        <div class="control-group">
+            <span class="label">メイン生地（無地）：</span>
+            <button onclick="applyFabric('main', 'main_white.JPG')">ホワイト</button>
+            <button onclick="applyFabric('main', 'main_sax.JPG')">サックス</button>
+            <button onclick="applyFabric('main', 'main_beige.JPG')">ベージュ</button>
+            <button onclick="applyFabric('main', 'main_sage.JPG')">セージ</button>
+            <button onclick="applyFabric('main', 'main_black.JPG')">ブラック</button>
+            <button onclick="applyFabric('main', 'main_navy.JPG')">ネイビー</button>
+            <button onclick="applyFabric('main', 'main_pink.JPG')">ピンク</button>
+            <button onclick="applyFabric('main', 'main_lemon.JPG')">レモン</button>
+        </div>
+
+        <div class="control-group">
+            <span class="label">① 襟：</span>
+            <button onclick="applyFabric('1', 'main_white.JPG')">ホワイト</button>
+            <button onclick="applyFabric('1', 'Berry_lavender.JPG')">ラベンダー</button>
+        </div>
+        
+        <p style="font-size: 11px; color: #b0a89a;">
+            ※ボタンを押して少し待つと反映されます！
+        </p>
     </div>
 </div>
 
 <script>
-    function change(url) {
-        const fabric = document.getElementById('fabric-main');
-        // 背景に生地を敷く
-        fabric.style.backgroundImage = "url('" + url + "?v=" + new Date().getTime() + "')";
-        fabric.style.display = "block";
+    function applyFabric(partId, imgUrl) {
+        // 今度は背景生地を表示させる「fabric-layer」の背景を変えます
+        const layer = document.getElementById('fabric-' + partId);
         
-        // 魔法！「服の形以外（白いところ）」を透明にして、後ろの生地を見せる設定
-        const outline = document.querySelector('.outline');
-        outline.style.mixBlendMode = "multiply"; 
+        // 魔法！透過PNGを「型紙」として使うための命令
+        // 例: mainならmain_front.jpg、1なら1_front.jpgを型紙にする
+        const maskUrl = partId + '_front.jpg';
         
-        alert("色を変えたよ！どうかな？");
+        layer.style.backgroundImage = "url('" + imgUrl + "')";
+        layer.style.webkitMaskImage = "url('" + maskUrl + "')";
+        layer.style.webkitMaskRepeat = "no-repeat";
+        layer.style.webkitMaskSize = "contain";
+        layer.style.webkitMaskPosition = "center";
+        
+        layer.style.display = "block";
     }
 </script>
 
