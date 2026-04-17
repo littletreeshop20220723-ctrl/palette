@@ -1,88 +1,4 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>Palette シュミレーター by Little tree</title>
-    <style>
-        body { font-family: sans-serif; background-color: #fcf9f5; color: #4a4a4a; margin: 0; padding: 20px; }
-        .container { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
-        .preview-area { background: white; border: 2px solid #e0dcd6; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        canvas { display: block; }
-        .controls { width: 450px; height: 700px; overflow-y: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .control-group { border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 15px; }
-        h2 { margin-top: 0; color: #8a7d6a; text-align: center; }
-        h3 { color: #8a7d6a; border-left: 5px solid #8a7d6a; padding-left: 12px; font-size: 16px; }
-        .label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 13px; color: #666; }
-        button { margin: 2px; padding: 8px 12px; cursor: pointer; border: 1px solid #eee; background: #fff; border-radius: 6px; font-size: 12px; transition: 0.2s; }
-        button:hover { background: #faf8f5; border-color: #8a7d6a; }
-    </style>
-</head>
-<body>
-
-<h2>Palette シュミレーター by Little tree</h2>
-
-<div class="container">
-    <div class="preview-area">
-        <canvas id="mainCanvas" width="500" height="700"></canvas>
-    </div>
-
-    <div class="controls">
-        <h3>【前身頃】生地の選択</h3>
-        <div class="control-group">
-            <span class="label">メイン生地（無地）：</span>
-            <button onclick="updateFabric('main', 'main_white.JPG')">ホワイト</button>
-            <button onclick="updateFabric('main', 'main_sax.JPG')">サックス</button>
-            <button onclick="updateFabric('main', 'main_beige.JPG')">ベージュ</button>
-            <button onclick="updateFabric('main', 'main_sage.JPG')">セージ</button>
-            <button onclick="updateFabric('main', 'main_black.JPG')">ブラック</button>
-            <button onclick="updateFabric('main', 'main_navy.JPG')">ネイビー</button>
-            <button onclick="updateFabric('main', 'main_pink.JPG')">ピンク</button>
-            <button onclick="updateFabric('main', 'main_lemon.JPG')">レモン</button>
-        </div>
-        <div class="control-group">
-            <span class="label">① 襟：</span>
-            <button onclick="updateFabric('1', 'main_white.JPG')">ホワイト</button>
-            <button onclick="updateFabric('1', 'Berry_lavender.JPG')">ラベンダー</button>
-        </div>
-        <p style="font-size: 11px; color: #b0a89a;">※色が反映されるまで数秒かかる場合があります。</p>
-    </div>
-</div>
-
-<script>
-    const canvas = document.getElementById('mainCanvas');
-    const ctx = canvas.getContext('2d');
-
-    const currentFabrics = {
-        'main': '', '1': '', '2': '', '3': '', '4': '', '5': ''
-    };
-
-    const imageCache = {};
-
-    // 画像を読み込む関数（エラーに強くしました）
-    function loadImage(src) {
-        if (imageCache[src]) return Promise.resolve(imageCache[src]);
-        return new Promise((resolve) => {
-            const img = new Image();
-            // GitHub上のCORS制限を回避するおまじない
-            img.crossOrigin = "anonymous";
-            img.onload = () => {
-                imageCache[src] = img;
-                resolve(img);
-            };
-            img.onerror = () => {
-                console.log(src + " が見つかりません");
-                resolve(null); // 画像がなくても止まらないようにする
-            };
-            img.src = src;
-        });
-    }
-
-    async function updateFabric(partId, fabricUrl) {
-        currentFabrics[partId] = fabricUrl;
-        await drawAll();
-    }
-
-    async function drawAll() {
+async function drawAll() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const parts = ['main', '1', '2', '3', '4', '5'];
@@ -96,28 +12,35 @@
                 const maskImg = await loadImage(maskUrl);
 
                 if (fabricImg && maskImg) {
+                    // --- ここから魔法の書き換え ---
+                    // 1. 別のキャンバスに「型紙」を描いて、白を透明に変換する処理
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = canvas.width;
+                    tempCanvas.height = canvas.height;
+                    const tCtx = tempCanvas.getContext('2d');
+                    tCtx.drawImage(maskImg, 0, 0, canvas.width, canvas.height);
+                    
+                    // 2. 生地を描く
                     ctx.save();
-                    // 1. 生地を描画
                     ctx.drawImage(fabricImg, 0, 0, canvas.width, canvas.height);
-                    // 2. 型抜き（合成）
+                    
+                    // 3. 型抜きを実行
                     ctx.globalCompositeOperation = 'destination-in';
-                    ctx.drawImage(maskImg, 0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(tempCanvas, 0, 0);
                     ctx.restore();
                 }
             }
         }
 
-        // 最後に枠線をすべて描画
+        // 枠線の描画（透過してなくても見えるように少し工夫）
         const outlines = ['main_front.PNG', '1_front.PNG', '2_front.PNG', '3_front.PNG', '4_front.PNG', '5_front.PNG', '6_front.PNG'];
         for (const url of outlines) {
             const img = await loadImage(url);
-            if (img) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            if (img) {
+                ctx.save();
+                ctx.globalCompositeOperation = 'multiply'; // 重ね塗りモード（白を透明化）
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                ctx.restore();
+            }
         }
     }
-
-    // ページ読み込み時に枠線だけ先に表示
-    window.onload = drawAll;
-</script>
-
-</body>
-</html>
