@@ -55,24 +55,34 @@
         const layer = document.getElementById('fabric-' + partId);
         const maskUrl = partId + '_front.PNG';
         
-        // 生地のセット
-        layer.style.backgroundImage = "url('" + imgUrl + "')";
-        
-        // 【透過PNG専用の呪文に修正】
-        // mask-image だけでなく、mask-source-type も指定するのがコツです
-        layer.style.webkitMaskImage = "url('" + maskUrl + "')";
-        layer.style.webkitMaskRepeat = "no-repeat";
-        layer.style.webkitMaskSize = "contain";
-        layer.style.webkitMaskPosition = "center";
-        
-        // 透過している「アルファチャンネル」を使って型抜きしてね！という命令
-        layer.style.webkitMaskSourceType = "alpha"; 
-        
-        layer.style.display = "block";
+        // 1. まず新しい画像を読み込む（ブラウザに「これから使うよ」と教える）
+        const img = new Image();
+        img.src = imgUrl;
+        const mask = new Image();
+        mask.src = maskUrl;
 
-        console.log(partId + " の色を更新しました！");
+        // 2. 読み込みが完了してから適用する（これが大事！）
+        mask.onload = function() {
+            layer.style.backgroundImage = "url('" + imgUrl + "')";
+            
+            // つるちゃんの画像（白＝不透明）をハサミとして使う
+            layer.style.webkitMaskImage = "url('" + maskUrl + "')";
+            layer.style.maskImage = "url('" + maskUrl + "')";
+            
+            layer.style.webkitMaskRepeat = "no-repeat";
+            layer.style.maskRepeat = "no-repeat";
+            
+            layer.style.webkitMaskSize = "contain";
+            layer.style.maskSize = "contain";
+            
+            layer.style.webkitMaskPosition = "center";
+            layer.style.maskPosition = "center";
+            
+            // 強制的に表示！
+            layer.style.display = "block";
+            console.log(partId + " の色を " + imgUrl + " に書き換えたよ！");
+        };
     }
 </script>
-
 </body>
 </html>
