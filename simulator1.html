@@ -66,10 +66,15 @@
     }
 
     async function updateFabric(partId, fabricUrl) {
+        // 実験：画像を使わず、直接「赤色」で塗りつぶしてみる
+        ctx.fillStyle = "red";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 本来の処理も一応残しておく
         currentFabrics[partId] = fabricUrl;
         await drawAll();
     }
-
+    
     async function drawAll() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
