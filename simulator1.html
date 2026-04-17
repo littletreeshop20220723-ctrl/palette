@@ -53,18 +53,24 @@
 <script>
     function apply(partId, imgUrl) {
         const layer = document.getElementById('fabric-' + partId);
-        // 今回は透過PNGなので、そのファイル自体を型紙（マスク）にします
         const maskUrl = partId + '_front.PNG';
         
+        // 生地のセット
         layer.style.backgroundImage = "url('" + imgUrl + "')";
         
-        // 透過PNGを使った「型抜き」の命令
+        // 【透過PNG専用の呪文に修正】
+        // mask-image だけでなく、mask-source-type も指定するのがコツです
         layer.style.webkitMaskImage = "url('" + maskUrl + "')";
         layer.style.webkitMaskRepeat = "no-repeat";
         layer.style.webkitMaskSize = "contain";
         layer.style.webkitMaskPosition = "center";
         
+        // 透過している「アルファチャンネル」を使って型抜きしてね！という命令
+        layer.style.webkitMaskSourceType = "alpha"; 
+        
         layer.style.display = "block";
+
+        console.log(partId + " の色を更新しました！");
     }
 </script>
 
