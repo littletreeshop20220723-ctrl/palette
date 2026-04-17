@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Palette シュミレーター by Little tree</title>
+    <style>
+        body { font-family: sans-serif; background-color: #fcf9f5; color: #4a4a4a; margin: 0; padding: 20px; }
+        .container { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
+        .preview-area { background: white; border: 2px solid #e0dcd6; border-radius: 10px; overflow: hidden; }
+        canvas { display: block; } /* キャンバスの隙間を消す */
+        .controls { width: 450px; height: 700px; overflow-y: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .control-group { border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 15px; }
+        h2 { margin-top: 0; color: #8a7d6a; text-align: center; }
+        h3 { color: #8a7d6a; border-left: 5px solid #8a7d6a; padding-left: 12px; font-size: 16px; }
+        .label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 13px; color: #666; }
+        button { margin: 2px; padding: 8px 12px; cursor: pointer; border: 1px solid #eee; background: #fff; border-radius: 6px; font-size: 12px; }
+        button:hover { background: #faf8f5; }
+    </style>
+</head>
+<body>
+
+<h2>Palette シュミレーター by Little tree</h2>
+
+<div class="container">
+    <div class="preview-area">
+        <canvas id="mainCanvas" width="500" height="700"></canvas>
+    </div>
+
+    <div class="controls">
+        <h3>【前身頃】生地の選択</h3>
+        <div class="control-group">
+            <span class="label">メイン生地（無地）：</span>
+            <button onclick="updateFabric('main', 'main_white.JPG')">ホワイト</button>
+            <button onclick="updateFabric('main', 'main_sax.JPG')">サックス</button>
+            <button onclick="updateFabric('main', 'main_beige.JPG')">ベージュ</button>
+            <button onclick="updateFabric('main', 'main_sage.JPG')">セージ</button>
+            <button onclick="updateFabric('main', 'main_black.JPG')">ブラック</button>
+            <button onclick="updateFabric('main', 'main_navy.JPG')">ネイビー</button>
+            <button onclick="updateFabric('main', 'main_pink.JPG')">ピンク</button>
+            <button onclick="updateFabric('main', 'main_lemon.JPG')">レモン</button>
+        </div>
+        <div class="control-group">
+            <span class="label">① 襟：</span>
+            <button onclick="updateFabric('1', 'main_white.JPG')">ホワイト</button>
+            <button onclick="updateFabric('1', 'Berry_lavender.JPG')">ラベンダー</button>
+        </div>
+        <p style="font-size: 11px; color: #b0a89a;">※ボタンを押して少し待つと反映されます！</p>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // 現在各パーツに設定されている生地を覚えておく場所
+    const currentFabrics = {
+        'main': '', '1': '', '2': '', '3': '', '4': '', '5': ''
+    };
+
+    // 読み込んだ画像をキャッシュしておく場所
+    const imageCache = {};
+
+    function updateFabric(partId, fabricUrl) {
+        currentFabrics[partId] = fabricUrl;
+        drawAll();
+    }
+
+    async function loadImage(src) {
+        if (imageCache[src]) return imageCache[src];
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                imageCache[src] = img;
+                resolve(img);
+            };
+            img.src = src;
+        });
+    }
+
+    async function drawAll() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // パーツリスト（重ねる順番）
+        const parts = ['main', '1', '2', '3', '4', '5'];
+
+        for (const part of parts) {
+            const fabricUrl = currentFabrics[part];
+            const maskUrl = part === 'main' ? 'main_front.PNG' : `${part}_front.PNG`;
+
+            if (fabricUrl) {
+                const fabricImg = await loadImage(fabricUrl);
+                const maskImg = await loadImage(maskUrl);
+
+                // 1. まず生地を描く
+                ctx.save();
+                ctx.drawImage(fabricImg, 0, 0, canvas.width, canvas.height);
+                
+                // 2. 型紙（透過PNG）で重なっている部分以外を消す
+                ctx.globalCompositeOperation = 'destination-in';
+                ctx.drawImage(maskImg, 0, 0, canvas.width, canvas.height);
+                ctx.restore();
+            }
+        }
+
+        // 最後にすべての枠線を上に描く
+        const outlines = ['main_front.PNG', '1_front.PNG', '2_front.PNG', '3_front.PNG', '4_front.PNG', '5_front.PNG', '6_front.PNG'];
+        for (const url of outlines) {
+            const img = await loadImage(url);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    // 最初の一回描画
+    drawAll();
+</script>
+
+</body>
+</html>
