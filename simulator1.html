@@ -55,33 +55,22 @@
         const layer = document.getElementById('fabric-' + partId);
         const maskUrl = partId + '_front.PNG';
         
-        // 背景画像（生地）をセット
         layer.style.backgroundImage = "url('" + imgUrl + "')";
         
-        // 【ここが修正ポイント！】
-        // Chromeなどのブラウザで確実に動くように「-webkit-」をしっかりつけ、
-        // かつ最新の書き方も併記します。
-        
-        // 1. 型抜きの画像指定
+        // --- 修正ポイント：ここ！ ---
         layer.style.webkitMaskImage = "url('" + maskUrl + "')";
         layer.style.maskImage = "url('" + maskUrl + "')";
         
-        // 2. 繰り返しなし
+        // もし「白」が透明扱いされているなら、マスクの「表示・非表示」を逆にします
+        // これで「透明な部分（服の中）」に色が乗るようになります
+        layer.style.webkitMaskComposite = "destination-out"; 
+        layer.style.maskComposite = "exclude";
+
         layer.style.webkitMaskRepeat = "no-repeat";
-        layer.style.maskRepeat = "no-repeat";
-        
-        // 3. サイズ（枠に合わせる）
         layer.style.webkitMaskSize = "contain";
-        layer.style.maskSize = "contain";
-        
-        // 4. 位置（中央）
         layer.style.webkitMaskPosition = "center";
-        layer.style.maskPosition = "center";
-
-        // 表示をONにする
+        
         layer.style.display = "block";
-
-        console.log(partId + " のマスクを適用しました: " + maskUrl);
     }
 </script>
 </body>
