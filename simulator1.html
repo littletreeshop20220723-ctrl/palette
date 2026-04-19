@@ -6,72 +6,104 @@
     <style>
         body { font-family: sans-serif; background-color: #fcf9f5; color: #4a4a4a; margin: 0; padding: 20px; }
         .container { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
-        .preview-area { position: relative; width: 500px; height: 700px; background: white; border: 2px solid #e0dcd6; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        /* 生地レイヤー */
-        .fabric-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background-size: cover; background-position: center; display: none; }
+        /* プレビューエリア：お洋服が表示されるキャンバス */
+        .preview-area { position: relative; width: 500px; height: 700px; background: white; border: 2px solid #e0dcd6; border-radius: 10px; overflow: hidden; }
         
-        /* 枠線レイヤー（上から重ねる線） */
-        .outline { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; object-fit: contain; }
-        
-        .controls { width: 400px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        /* パーツごとの透過レイヤー */
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; z-index: 1; display: none; }
+
+        .controls { width: 450px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .control-group { border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 15px; }
-        h3 { color: #8a7d6a; border-left: 5px solid #8a7d6a; padding-left: 12px; font-size: 16px; }
-        button { margin: 2px; padding: 8px 12px; cursor: pointer; border: 1px solid #eee; background: #fff; border-radius: 6px; font-size: 12px; }
+        h3 { color: #8a7d6a; border-left: 5px solid #8a7d6a; padding-left: 12px; font-size: 15px; margin-bottom: 10px; }
+        button { margin: 2px; padding: 6px 10px; cursor: pointer; border: 1px solid #eee; background: #fff; border-radius: 6px; font-size: 11px; }
         button:hover { background: #faf8f5; border-color: #8a7d6a; }
     </style>
 </head>
 <body>
 
+<h2 style="text-align: center; color: #8a7d6a;">Palette シュミレーター</h2>
+
 <div class="container">
     <div class="preview-area">
-        <div id="fabric-main" class="fabric-layer"></div>
-        <div id="fabric-1" class="fabric-layer"></div>
-        
-        <img src="main_front.PNG" class="outline">
-        <img src="1_front.PNG" class="outline">
+        <img id="view-main" class="layer">
+        <img id="view-1" class="layer">
+        <img id="view-2" class="layer">
+        <img id="view-3" class="layer">
+        <img id="view-4" class="layer">
+        <img id="view-5" class="layer">
+        <img id="view-6" class="layer">
     </div>
 
     <div class="controls">
-        <h2>Palette Simulation</h2>
-        
         <div class="control-group">
-            <h3>メイン生地</h3>
-            <button onclick="apply('main', 'main_white.JPG')">ホワイト</button>
-            <button onclick="apply('main', 'main_sax.JPG')">サックス</button>
-            <button onclick="apply('main', 'main_sage.JPG')">セージ</button>
+            <h3>main: メイン（無地）</h3>
+            <button onclick="change('main', 'lemon')">レモン</button>
+            <button onclick="change('main', 'navy')">ネイビー</button>
+            <button onclick="change('main', 'black')">ブラック</button>
+            <button onclick="change('main', 'white')">ホワイト</button>
+            <button onclick="change('main', 'ekuryu')">エクリュ</button>
         </div>
 
         <div class="control-group">
-            <h3>襟パーツ（①）</h3>
-            <button onclick="apply('1', 'main_white.JPG')">ホワイト</button>
-            <button onclick="apply('1', 'Berry_lavender.JPG')">ラベンダー</button>
+            <h3>1: 襟</h3>
+            <button onclick="change('1', 'check_s_beige')">チェック(小)</button>
+            <button onclick="change('1', 'white')">ホワイト</button>
+            <button onclick="change('1', 'ekuryu')">エクリュ</button>
+        </div>
+
+        <div class="control-group">
+            <h3>2: 袖</h3>
+            <button onclick="change('2', 'check_s_beige')">チェック(小)</button>
+            <button onclick="change('2', 'white')">ホワイト</button>
+        </div>
+
+        <div class="control-group">
+            <h3>3: 身頃上</h3>
+            <button onclick="change('3', 'warm')">ウォーム</button>
+            <button onclick="change('3', 'white')">ホワイト</button>
+        </div>
+
+        <div class="control-group">
+            <h3>4: 身頃下</h3>
+            <button onclick="change('4', 'check_l_beige')">チェック(大)</button>
+            <button onclick="change('4', 'white')">ホワイト</button>
+        </div>
+
+        <div class="control-group">
+            <h3>5: 裾</h3>
+            <button onclick="change('5', 'ekuryu')">エクリュ</button>
+            <button onclick="change('5', 'white')">ホワイト</button>
+        </div>
+
+        <div class="control-group">
+            <h3>6: ヨーク</h3>
+            <button onclick="change('6', 'ekuryu')">エクリュ</button>
+            <button onclick="change('6', 'white')">ホワイト</button>
         </div>
     </div>
 </div>
 
 <script>
-    function apply(partId, imgUrl) {
-        const layer = document.getElementById('fabric-' + partId);
-        const maskUrl = partId + '_front.PNG';
+    function change(part, fabric) {
+        const target = document.getElementById('view-' + part);
         
-        layer.style.backgroundImage = "url('" + imgUrl + "')";
+        // 🌟 ここで小文字の .png に設定しています！
+        const fileName = part + '_' + fabric + '.png';
         
-        // --- 修正ポイント：ここ！ ---
-        layer.style.webkitMaskImage = "url('" + maskUrl + "')";
-        layer.style.maskImage = "url('" + maskUrl + "')";
+        target.src = fileName;
         
-        // もし「白」が透明扱いされているなら、マスクの「表示・非表示」を逆にします
-        // これで「透明な部分（服の中）」に色が乗るようになります
-        layer.style.webkitMaskComposite = "destination-out"; 
-        layer.style.maskComposite = "exclude";
-
-        layer.style.webkitMaskRepeat = "no-repeat";
-        layer.style.webkitMaskSize = "contain";
-        layer.style.webkitMaskPosition = "center";
+        target.onload = function() {
+            this.style.display = "block";
+            console.log("読み込み成功: " + fileName);
+        };
         
-        layer.style.display = "block";
+        target.onerror = function() {
+            console.log("画像が見つかりません（名前を確認してね）: " + fileName);
+            this.style.display = "none";
+        };
     }
 </script>
+
 </body>
 </html>
